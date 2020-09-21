@@ -16,7 +16,7 @@ app.use(morgan(morganOption))
 app.use(helmet())
 app.use(cors())
 
-const BookmarksService = require('./bookmarks-service')
+const BookmarksService = require('./bookmarks/bookmarks-service')
 
 app.get('/bookmarks', (req, res, next) => {
   const knexInstance = req.app.get('db')
@@ -34,6 +34,26 @@ app.get('/bookmarks/:bookmarks_id', (req, res, next) => {
       res.json(bookmark)
   })
   .catch(next)
+})
+
+const jsonParser = express.json()
+
+app.post('/bookmark', jsonParser, (req, res, next) => {
+  const knexInstance = req.app.get('db')
+  const { id, title, url, rating, description } = req.body
+  const newBookmark = { id, title, url, rating, description }
+
+  BookmarksService.insertBookmark(    
+    req.app.get('db'),
+      newBookmark
+    )
+    .then(bookmark => {
+      res
+        .status(201)
+        .location(`/bookmarks/${bookmark.id}`)
+        .json(bookmark)
+      })
+    .catch(next)
 })
 
 app.use((error, req, res, next) => {

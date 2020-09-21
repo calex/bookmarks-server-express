@@ -59,4 +59,35 @@ describe('Bookmarks Endpoints', () => {
             })
         })
     })
+
+    describe(`POST /bookmarks`, () => {
+      it(`creates a bookmark, responding with 201 and the new bookmark`,  function() {
+        const newBookmark = {
+            id: 6,
+            title: 'Google',
+            url: 'https://www.google.com',
+            rating: 5,
+            description: 'Fun in the sun'
+        }
+
+        return supertest(app)
+          .post('/bookmark')
+          .send(newBookmark)
+          .expect(201)
+          .expect(res => {
+            expect(res.body.id).to.eql(newBookmark.id)
+            expect(res.body.title).to.eql(newBookmark.title)
+            expect(res.body.url).to.eql(newBookmark.url)
+            expect(res.body.rating).to.eql(newBookmark.rating)
+            expect(res.body.description).to.eql(newBookmark.description)
+            expect(res.headers.location).to.eql(`/bookmarks/${res.body.id}`)
+            expect(res.body).to.have.property('id')
+          })
+          .then(postRes =>
+            supertest(app)
+            .get(`/bookmarks/${postRes.body.id}`)
+            .expect(postRes.body)
+        )
+      })
+    })
 })
