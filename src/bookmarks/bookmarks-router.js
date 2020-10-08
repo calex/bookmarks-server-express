@@ -4,6 +4,7 @@ const BookmarksService = require('./bookmarks-service')
 const bookmarksRouter = express.Router()
 const jsonParser = express.json()
 
+const path = require('path')
 const xss = require('xss')
 
 const xssCleanUpBookmark = (bookmark) => {
@@ -62,9 +63,7 @@ bookmarksRouter
                 error: { message: `Rating cannot be greater than 5 or less than 0` }
             })
         }
-    
         
-
         const newBookmark = { ...newBookmarkRequiredItems, ...newBookmarkUnrequiredItems}
         
         const cleanedUpBookmark = xssCleanUpBookmark(newBookmark)
@@ -77,7 +76,7 @@ bookmarksRouter
             
         res
             .status(201)
-            .location(`/bookmarks/${bookmark.id}`)
+            .location(path.posix.join(req.originalUrl,`/${bookmark.id}`))
             .json(bookmark)
         })
         .catch(next)
@@ -107,6 +106,33 @@ bookmarksRouter
         res.json({
             ...cleanedUpBookmark
         })
+    })
+    .patch(jsonParser, (req, res, next) => {
+        const { title, url, rating, description } = req.body
+        const bookmarkToUpdate = { title, url, rating, description }
+        const bookmarkRequiredItems = { title, url, rating }
+
+        const numberOfValues = Object.values(bookmarkRequiredItems).filter(Boolean).length
+        
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: {
+                    message: `Request body must contain at least one of 'title', 'url', or 'rating'`
+                }
+            })
+        }
+
+        res.status(204).end()
+        
+        BookmarksService.updateBookmark(
+            req.app.get('db'),
+            req.params.bookmark_id,
+            bookmarkToUpdate
+        )
+        .then(numRowsAffected => {
+            res.status(204).end()
+        })
+        .catch(next)
     })
     .delete((req, res, next) => {
         BookmarksService.deleteBookmark(

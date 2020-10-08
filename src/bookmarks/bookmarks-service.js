@@ -15,11 +15,11 @@ const BookmarksService = {
     getById(knex, id) {
         return knex.from('bookmarks').select('*').where('id', id).first()
     },
-    // updateBookmark(knex, id, newBookmarkFields) {
-    //     return knex('bookmarks')
-    //     .where({ id })
-    //     .update(newBookmarkFields)
-    // },
+    updateBookmark(knex, id, newBookmarkFields) {
+        return knex('bookmarks')
+        .where({ id })
+        .update(newBookmarkFields)
+    },
     deleteBookmark(knex, id) {
         return knex('bookmarks')
         .where({ id })
