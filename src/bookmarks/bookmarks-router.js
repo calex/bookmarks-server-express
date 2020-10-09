@@ -38,7 +38,7 @@ bookmarksRouter
         const { id, title, url, rating, description } = req.body
         const newBookmarkRequiredItems = { id, title, url, rating }
         const newBookmarkUnrequiredItems = { description }
-        const requiredAsNumbers = { id, rating }
+        const requiredAsNumbers = { rating }
 
         // loop through keys and values of passed in values to check the required items are there
         for (const [key, value] of Object.entries(newBookmarkRequiredItems)) {
